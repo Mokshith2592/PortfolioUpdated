@@ -1,0 +1,2 @@
+import React from 'react';
+export const CaseStudy = ({ title, overview, motivation, architecture, challenges, github }: any
