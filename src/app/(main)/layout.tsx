@@ -1,0 +1,5 @@
+import OSLayout from '@/components/layout/OSLayout';
+
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  return <OSLayout>{children}</OSLayout>;
+}
