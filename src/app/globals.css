@@ -2,11 +2,74 @@
 @plugin "@tailwindcss/typography";
 
 @layer base { 
-  :root { --background: 0 0% 0%; --foreground: 210 40% 98%; } 
-  body { background-color: hsl(var(--background)); color: hsl(var(--foreground)); } 
+  :root { 
+    /* Base OS Colors */
+    --background: 0 0% 2%; /* HSL equivalent of #050505 */
+    --foreground: 210 40% 98%; 
+    
+    /* MokshithOS Premium Theme Variables */
+    --surface: #0f1115;
+    --accent: 59, 130, 246; /* RGB for Electric Blue */
+  } 
+  
+  body { 
+    background-color: hsl(var(--background)); 
+    color: hsl(var(--foreground)); 
+    overflow-x: hidden; /* Prevents horizontal scroll on animations */
+  } 
 } 
 
-/* Custom Markdown Styles - Bypassing Tailwind Typography */
+/* --- PREMIUM OS STYLES --- */
+
+/* 1. Pure CSS Noise Texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* 2. Stealth OS Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* 3. Global Text Selection Color */
+::selection {
+  background-color: rgba(var(--accent), 0.3);
+  color: #ffffff;
+}
+
+/* 4. Glassmorphism Utility Class */
+.glass-panel {
+  background: rgba(15, 17, 21, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* --- CUSTOM MARKDOWN STYLES --- */
+
 .prose {
   color: #d4d4d8; /* zinc-300 */
 }
