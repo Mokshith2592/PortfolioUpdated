@@ -142,3 +142,14 @@ export const skills = [
     items: ["Next.js 16", "TypeScript", "Tailwind CSS", "PostgreSQL"] 
   },
 ];
+
+export const STATIC_NOW_ITEMS = [
+  "Building Redis-Compatible Server",
+  "Learning Distributed Systems",
+  "Reading DDIA",
+  "Improving MokshithOS",
+  "Exploring C++ Systems",
+  "Refining Placement Portal UI",
+  "Optimizing Large Scale Sparse Systems",
+  "Debugging Grey Wolf Optimizer"
+];

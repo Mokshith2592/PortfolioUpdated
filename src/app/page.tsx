@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { LiveTerminal } from "@/components/terminal/LiveTerminal";
 import OSLayout from "@/components/layout/OSLayout";
 import { NetworkParticles } from "@/components/layout/NetworkParticles";
+import { STATIC_NOW_ITEMS } from "@/lib/data";
 
 const BOOT_LOGS = [
   "Initializing Kernel........... [OK]",
@@ -85,43 +86,74 @@ export default function Home() {
     };
   }, []);
 
-// --- LIVE GITHUB API INJECTION (RANDOMIZED) ---
+  // --- FEATURE 2 DETECTOR: LIVE API INJECTIONS & SHUFFLER ---
+  // --- LIVE DATA INJECTION: GITHUB + SPOTIFY ---
   useEffect(() => {
     if (isBooting) return;
 
-    // Fetch the 3 most recently updated repos
-    fetch('https://api.github.com/users/Mokshith2592/repos?sort=updated&per_page=3')
-      .then(res => {
-        if (!res.ok) throw new Error("GitHub API Rate Limited");
-        return res.json();
-      })
-      .then(data => {
-        if (data && data.length > 0) {
-          // Pick a random repo from the top 3 recent ones
-          const randomIndex = Math.floor(Math.random() * data.length);
-          const randomRepo = data[randomIndex];
+    // Inside your useEffect...
+    const fetchLiveData = async () => {
+      // 1. Fetch GitHub
+      const gitRes = await fetch(
+        "https://api.github.com/users/Mokshith2592/repos?sort=updated&per_page=3",
+      )
+        .then((res) => res.json())
+        .catch(() => []);
 
-          const repoName = randomRepo.name;
-          const language = randomRepo.language ? ` [${randomRepo.language}]` : '';
-          
-          // Inject the randomly selected repo into the stream
-          setNowItems(prev => [
-            `Recently active on: ${repoName}${language}`,
-            ...prev
-          ]);
-        }
-      })
-      .catch((err) => console.log("Fallback to static NOW stream:", err.message));
+      // 2. Fetch Spotify
+      const spotifyRes = await fetch("/api/spotify")
+        .then((res) => res.json())
+        .catch(() => ({ playing: false }));
+
+      // 3. Selection Logic
+      let finalStream: string[] = [];
+
+      // Slot A: Spotify (1)
+      if (spotifyRes.playing) {
+        finalStream.push(
+          `🎵 Listening: ${spotifyRes.title} - ${spotifyRes.artist}`,
+        );
+      } else {
+        finalStream.push("🎵 Spotify offline/paused");
+      }
+
+      // Slot B: Random Git (1)
+      if (gitRes.length > 0) {
+        const randomGit = gitRes[Math.floor(Math.random() * gitRes.length)];
+        finalStream.push(`Recently active on: ${randomGit.name}`);
+      }
+
+      // Slot C: Random Static (3)
+      const shuffledStatic = [...STATIC_NOW_ITEMS].sort(
+        () => 0.5 - Math.random(),
+      );
+      finalStream.push(...shuffledStatic.slice(0, 3));
+
+      // Final Shuffle of the 5 items so the Spotify/Git/Static slots aren't predictable
+      setNowItems(finalStream.sort(() => 0.5 - Math.random()));
+    };
+
+    fetchLiveData();
   }, [isBooting]);
 
   // --- NOW STREAM TICKER ---
   useEffect(() => {
     if (isBooting) return;
     const interval = setInterval(() => {
-      setNowIndex((prev) => (prev + 1) % nowItems.length); // Uses dynamic length now
+      setNowIndex((prev) => (prev + 1) % nowItems.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [isBooting, nowItems.length]);
+  }, [isBooting, nowItems]); // Watch 'nowItems' so it updates when data arrives
+
+  // Location API
+  const [visitorContext, setVisitorContext] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => setVisitorContext(data))
+      .catch(() => console.log("Geo lookup failed, skipping."));
+  }, []);
 
   return (
     <>
@@ -140,7 +172,9 @@ export default function Home() {
             justifyContent: "center",
             opacity: exiting ? 0 : 1,
             transform: exiting ? "translateY(-10px)" : "translateY(0)",
-            transition: exiting ? "opacity 0.4s ease, transform 0.4s ease" : "none",
+            transition: exiting
+              ? "opacity 0.4s ease, transform 0.4s ease"
+              : "none",
           }}
         >
           <div
@@ -153,10 +187,23 @@ export default function Home() {
             }}
           >
             <div style={{ marginBottom: "2.5rem" }}>
-              <h1 style={{ color: "#f4f4f5", fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>
+              <h1
+                style={{
+                  color: "#f4f4f5",
+                  fontSize: "1.25rem",
+                  fontWeight: "bold",
+                  margin: 0,
+                }}
+              >
                 MokshithOS
               </h1>
-              <p style={{ color: "#71717a", fontSize: "0.75rem", margin: "0.25rem 0 0 0" }}>
+              <p
+                style={{
+                  color: "#71717a",
+                  fontSize: "0.75rem",
+                  margin: "0.25rem 0 0 0",
+                }}
+              >
                 Personal Engineering Operating System
               </p>
             </div>
@@ -172,7 +219,10 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
                 style={{
-                  color: log.includes("[OK]") || log.includes("Ready") ? "#22c55e" : "#d4d4d8",
+                  color:
+                    log.includes("[OK]") || log.includes("Ready")
+                      ? "#22c55e"
+                      : "#d4d4d8",
                 }}
               >
                 {log}
@@ -262,7 +312,7 @@ export default function Home() {
                       <div className="w-3 h-3 rounded-full bg-green-500" />
                     </div>
                     <div className="p-4">
-                      <LiveTerminal />
+                      <LiveTerminal visitorContext={visitorContext}/>
                     </div>
                   </div>
                 </div>
