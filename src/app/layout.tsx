@@ -29,7 +29,7 @@ export default function RootLayout({
           </div>
 
           {/* 3. OS Taskbar / Status Bar */}
-          <footer className="fixed bottom-0 w-full bg-[#0F1115]/90 backdrop-blur-md border-t border-zinc-800/80 p-2 px-4 flex justify-between items-center text-[10px] font-mono text-zinc-500 z-50">
+          <footer className="fixed bottom-0 w-full bg-[#0F1115]/90 backdrop-blur-md border-t border-zinc-800/80 p-2 px-4 flex justify-between items-center text-[10px] font-mono text-zinc-500 z-40">
             <div className="flex gap-4">
               <span className="text-blue-500 font-bold drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">[MokshithOS v2.0]</span>
               <span>SYSTEM_KERNEL: ACTIVE</span>
