@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // <-- Added AnimatePresence
 
 type HistoryItem = { id: string; command: string; output: string | React.ReactNode };
 
@@ -20,7 +20,6 @@ const PATHS: Record<string, string> = {
 };
 
 // --- PURE RENDER FUNCTION --- 
-// This generates the UI without triggering actual system actions (so it's safe to run on refresh)
 const generateOutput = (baseCmd: string, target: string, fullTarget: string, cmdHistorySnapshot: string[]): React.ReactNode | string => {
   switch (baseCmd) {
     case 'help':
@@ -137,12 +136,60 @@ export const LiveTerminal = () => {
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState(-1);
   const [isReady, setIsReady] = useState(false);
+  const [isMeltdown, setIsMeltdown] = useState(false);
   
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // --- AUDIO ENGINE STATE ---
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+
+  // --- LOAD AUDIO INTO MEMORY ---
+  useEffect(() => {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioContextClass) {
+      audioContextRef.current = new AudioContextClass();
+      
+      fetch('/sounds/keyboard.mp3')
+        .then(res => res.arrayBuffer())
+        .then(buffer => audioContextRef.current?.decodeAudioData(buffer))
+        .then(decodedData => {
+          if (decodedData) audioBufferRef.current = decodedData;
+        })
+        .catch(console.error);
+    }
+      
+    return () => {
+      if (audioContextRef.current?.state !== 'closed') {
+        audioContextRef.current?.close();
+      }
+    };
+  }, []);
+
+  // --- ZERO-LATENCY SLICER ---
+  const playSound = (type: 'key' | 'enter') => {
+    if (!audioContextRef.current || !audioBufferRef.current) return;
+    
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = audioBufferRef.current;
+
+    const gainNode = audioContextRef.current.createGain();
+    gainNode.gain.value = type === 'enter' ? 0.6 : 0.3;
+
+    source.connect(gainNode);
+    gainNode.connect(audioContextRef.current.destination);
+
+    const randomStart = 2.0 + Math.random() * 8.0;
+    const duration = type === 'enter' ? 0.15 : 0.08;
+    source.start(0, randomStart, duration);
+  };
+
   // --- REHYDRATION PROTOCOL ---
-  // On page refresh, load the command log from sessionStorage and rebuild the UI
   useEffect(() => {
     const savedLog = sessionStorage.getItem('mokshithos_term_log');
     if (savedLog) {
@@ -203,7 +250,7 @@ export const LiveTerminal = () => {
       sessionStorage.setItem('mokshithos_term_log', JSON.stringify(logArr));
     }
 
-    // 2. Execute Side Effects (routing, window opening)
+    // 2. Execute Side Effects
     if (baseCmd === 'cd' && PATHS[target]) {
       setTimeout(() => router.push(PATHS[target]), 300);
     } else if (baseCmd === 'github' || (baseCmd === 'cd' && target === 'github')) {
@@ -211,9 +258,33 @@ export const LiveTerminal = () => {
     } else if (baseCmd === 'resume') {
       window.open('/resume.pdf', '_blank');
     }
-
+    
+    // 2.5 GUI Window Triggers
+    if (baseCmd === 'open') {
+      if (['projects', 'notes'].includes(target)) {
+        window.dispatchEvent(new CustomEvent('open-os-window', { detail: target }));
+        setHistory(prev => [...prev, { id: Math.random().toString(), command: trimmedCmd, output: `Spawning GUI process: ${target}.exe...` }]);
+      } else {
+        setHistory(prev => [...prev, { id: Math.random().toString(), command: trimmedCmd, output: `Cannot open '${target}'. Try 'open projects' or 'open notes'.` }]);
+      }
+      return;
+    }
+    
     // 3. Update React State UI
-    if (baseCmd === 'clear') {
+    if (baseCmd === 'sudo' && fullTarget.includes('rm -rf')) {
+      // TRIGGER THE MELTDOWN
+      setIsMeltdown(true);
+      
+      // Wipe the memory so it actually has to reboot
+      sessionStorage.removeItem('mokshithos_term_log');
+      sessionStorage.removeItem('mokshithos_booted');
+      
+      // Force a real page reload after 4 seconds of chaos
+      setTimeout(() => {
+        window.location.reload();
+      }, 4000);
+      return;
+    } else if (baseCmd === 'clear') {
       setHistory([]);
     } else {
       const output = generateOutput(baseCmd, target, fullTarget, [...cmdHistory, trimmedCmd]);
@@ -222,6 +293,10 @@ export const LiveTerminal = () => {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (!['Shift', 'Control', 'Alt', 'Meta', 'ArrowUp', 'ArrowDown', 'Tab'].includes(e.key)) {
+      playSound(e.key === 'Enter' ? 'enter' : 'key');
+    }
+
     if (e.key === 'Tab') {
       e.preventDefault();
       const args = input.split(' ');
@@ -272,39 +347,73 @@ export const LiveTerminal = () => {
     }
   };
 
-  if (!isReady) return null; // Prevents hydration mismatch on initial load
+  if (!isReady) return null;
 
   return (
-    <div 
-      className="w-full h-72 md:h-80 max-h-[50vh] bg-zinc-950/20 backdrop-blur-md border border-zinc-800/40 rounded-xl p-4 md:p-6 font-mono text-sm overflow-y-auto cursor-text shadow-2xl z-10" 
-      onClick={focusInput}
-    >
-      {history.map((item) => (
-        <div key={item.id} className="mb-3">
-          {item.command && (
-            <div className="flex gap-2">
-              <span className="text-green-500 shrink-0">mokshith@os:~$</span>
-              <span className="text-zinc-100 break-all">{item.command}</span>
-            </div>
-          )}
-          <div className="text-zinc-400 mt-1 whitespace-pre-wrap">{item.output}</div>
+    <>
+      <div 
+        className="w-full h-72 md:h-80 max-h-[50vh] bg-zinc-950/20 backdrop-blur-md border border-zinc-800/40 rounded-xl p-4 md:p-6 font-mono text-sm overflow-y-auto cursor-text shadow-2xl z-10 relative" 
+        onClick={focusInput}
+      >
+        {history.map((item) => (
+          <div key={item.id} className="mb-3">
+            {item.command && (
+              <div className="flex gap-2">
+                <span className="text-green-500 shrink-0">mokshith@os:~$</span>
+                <span className="text-zinc-100 break-all">{item.command}</span>
+              </div>
+            )}
+            <div className="text-zinc-400 mt-1 whitespace-pre-wrap">{item.output}</div>
+          </div>
+        ))}
+        <div className="flex gap-2 mt-2">
+          <span className="text-green-500 shrink-0">mokshith@os:~$</span>
+          <input 
+            ref={inputRef} 
+            type="text" 
+            value={input} 
+            onChange={(e) => setInput(e.target.value)} 
+            onKeyDown={handleKeyDown} 
+            className="flex-1 bg-transparent outline-none text-zinc-100" 
+            spellCheck={false}
+            autoComplete="off"
+            autoFocus 
+          />
         </div>
-      ))}
-      <div className="flex gap-2 mt-2">
-        <span className="text-green-500 shrink-0">mokshith@os:~$</span>
-        <input 
-          ref={inputRef} 
-          type="text" 
-          value={input} 
-          onChange={(e) => setInput(e.target.value)} 
-          onKeyDown={handleKeyDown} 
-          className="flex-1 bg-transparent outline-none text-zinc-100" 
-          spellCheck={false}
-          autoComplete="off"
-          autoFocus 
-        />
+        <div ref={bottomRef} className="pb-2" />
       </div>
-      <div ref={bottomRef} className="pb-2" />
-    </div>
+
+      {/* --- THE MELTDOWN OVERLAY --- */}
+      <AnimatePresence>
+        {isMeltdown && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center overflow-hidden"
+          >
+            {/* Red flashing background */}
+            <motion.div 
+              animate={{ opacity: [0, 0.8, 0.2, 0.9, 0.1, 1] }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatType: "mirror" }}
+              className="absolute inset-0 bg-red-600 mix-blend-color-burn"
+            />
+            
+            {/* Shaking Text */}
+            <motion.div
+              animate={{ 
+                x: [-10, 15, -20, 10, -5, 20, 0], 
+                y: [10, -15, 20, -10, 5, -20, 0],
+                filter: ["hue-rotate(0deg)", "hue-rotate(90deg)", "hue-rotate(-90deg)", "hue-rotate(0deg)"]
+              }}
+              transition={{ duration: 0.2, repeat: Infinity }}
+              className="relative z-10 text-red-500 font-bold text-6xl md:text-9xl tracking-tighter drop-shadow-[0_0_20px_rgba(239,68,68,1)] flex flex-col items-center"
+            >
+              <span>KERNEL PANIC</span>
+              <span className="text-xl md:text-3xl text-red-300 mt-4 tracking-widest animate-pulse">SYSTEM CORRUPTION DETECTED</span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };

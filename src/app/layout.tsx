@@ -5,9 +5,34 @@ import { NetworkParticles } from "@/components/layout/NetworkParticles";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// --- PROTOCOL 1: METADATA & OPEN GRAPH ---
 export const metadata: Metadata = {
-  title: "MokshithOS",
-  description: "Systems Engineering Portfolio",
+  title: "MokshithOS | Systems Engineer",
+  description: "Personal engineering operating system and portfolio of Mokshith Gattu, Data Engineering Intern at Visa.",
+  keywords: [
+    "Mokshith Gattu", 
+    "Systems Engineer", 
+    "Software Engineer", 
+    "NIT Warangal", 
+    "Portfolio", 
+    "C++", 
+    "Redis",
+    "Visa"
+  ],
+  authors: [{ name: "Mokshith Gattu" }],
+  openGraph: {
+    title: "MokshithOS | Systems Engineer",
+    description: "Personal engineering operating system and portfolio of Mokshith Gattu.",
+    url: "https://mokshithos.vercel.app", // Update this later if you buy a custom domain!
+    siteName: "MokshithOS",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MokshithOS | Systems Engineer",
+    description: "Personal engineering operating system and portfolio of Mokshith Gattu.",
+  },
 };
 
 export default function RootLayout({

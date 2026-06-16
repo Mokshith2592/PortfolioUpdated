@@ -17,14 +17,6 @@ const BOOT_LOGS = [
   "System Ready.",
 ];
 
-const NOW_ITEMS = [
-  "Building Redis-Compatible Server",
-  "Learning Distributed Systems",
-  "Reading DDIA",
-  "Improving MokshithOS",
-  "Exploring C++ Systems",
-];
-
 const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default function Home() {
@@ -33,7 +25,33 @@ export default function Home() {
   const [exiting, setExiting] = useState(false);
   const [nowIndex, setNowIndex] = useState(0);
 
-  // --- Boot Sequence Logic ---
+  // --- DYNAMIC NOW STREAM STATE ---
+  const [nowItems, setNowItems] = useState<string[]>([
+    "Building Redis-Compatible Server",
+    "Learning Distributed Systems",
+    "Reading DDIA",
+    "Improving MokshithOS",
+    "Exploring C++ Systems",
+  ]);
+
+  const [openWindows, setOpenWindows] = useState<string[]>([]);
+
+  // --- WINDOW MANAGER ---
+  useEffect(() => {
+    const handleOpenWindow = (e: any) => {
+      if (!openWindows.includes(e.detail)) {
+        setOpenWindows((prev) => [...prev, e.detail]);
+      }
+    };
+    window.addEventListener("open-os-window", handleOpenWindow);
+    return () => window.removeEventListener("open-os-window", handleOpenWindow);
+  }, [openWindows]);
+
+  const closeWindow = (id: string) => {
+    setOpenWindows((prev) => prev.filter((w) => w !== id));
+  };
+
+  // --- BOOT SEQUENCE LOGIC ---
   useEffect(() => {
     if (sessionStorage.getItem("mokshithos_booted")) {
       setIsBooting(false);
@@ -56,7 +74,7 @@ export default function Home() {
       if (!cancelled) {
         sessionStorage.setItem("mokshithos_booted", "true");
         setExiting(true);
-        await sleep(500); // let exit animation play
+        await sleep(500);
         setIsBooting(false);
       }
     };
@@ -67,14 +85,43 @@ export default function Home() {
     };
   }, []);
 
-  // --- Now Stream Logic ---
+// --- LIVE GITHUB API INJECTION (RANDOMIZED) ---
   useEffect(() => {
-    if (isBooting) return; // Don't run the timer while booting
+    if (isBooting) return;
+
+    // Fetch the 3 most recently updated repos
+    fetch('https://api.github.com/users/Mokshith2592/repos?sort=updated&per_page=3')
+      .then(res => {
+        if (!res.ok) throw new Error("GitHub API Rate Limited");
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          // Pick a random repo from the top 3 recent ones
+          const randomIndex = Math.floor(Math.random() * data.length);
+          const randomRepo = data[randomIndex];
+
+          const repoName = randomRepo.name;
+          const language = randomRepo.language ? ` [${randomRepo.language}]` : '';
+          
+          // Inject the randomly selected repo into the stream
+          setNowItems(prev => [
+            `Recently active on: ${repoName}${language}`,
+            ...prev
+          ]);
+        }
+      })
+      .catch((err) => console.log("Fallback to static NOW stream:", err.message));
+  }, [isBooting]);
+
+  // --- NOW STREAM TICKER ---
+  useEffect(() => {
+    if (isBooting) return;
     const interval = setInterval(() => {
-      setNowIndex((prev) => (prev + 1) % NOW_ITEMS.length);
+      setNowIndex((prev) => (prev + 1) % nowItems.length); // Uses dynamic length now
     }, 4000);
     return () => clearInterval(interval);
-  }, [isBooting]);
+  }, [isBooting, nowItems.length]);
 
   return (
     <>
@@ -86,16 +133,14 @@ export default function Home() {
             inset: 0,
             height: "100vh",
             width: "100vw",
-            zIndex: 100, // ← covers the z-40 footer
+            zIndex: 100,
             backgroundColor: "#050505",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             opacity: exiting ? 0 : 1,
             transform: exiting ? "translateY(-10px)" : "translateY(0)",
-            transition: exiting
-              ? "opacity 0.4s ease, transform 0.4s ease"
-              : "none",
+            transition: exiting ? "opacity 0.4s ease, transform 0.4s ease" : "none",
           }}
         >
           <div
@@ -104,27 +149,14 @@ export default function Home() {
               fontSize: "0.875rem",
               lineHeight: "1.75rem",
               width: "100%",
-              maxWidth: "500px"
+              maxWidth: "500px",
             }}
           >
             <div style={{ marginBottom: "2.5rem" }}>
-              <h1
-                style={{
-                  color: "#f4f4f5",
-                  fontSize: "1.25rem",
-                  fontWeight: "bold",
-                  margin: 0,
-                }}
-              >
+              <h1 style={{ color: "#f4f4f5", fontSize: "1.25rem", fontWeight: "bold", margin: 0 }}>
                 MokshithOS
               </h1>
-              <p
-                style={{
-                  color: "#71717a",
-                  fontSize: "0.75rem",
-                  margin: "0.25rem 0 0 0",
-                }}
-              >
+              <p style={{ color: "#71717a", fontSize: "0.75rem", margin: "0.25rem 0 0 0" }}>
                 Personal Engineering Operating System
               </p>
             </div>
@@ -140,10 +172,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
                 style={{
-                  color:
-                    log.includes("[OK]") || log.includes("Ready")
-                      ? "#22c55e"
-                      : "#d4d4d8",
+                  color: log.includes("[OK]") || log.includes("Ready") ? "#22c55e" : "#d4d4d8",
                 }}
               >
                 {log}
@@ -249,7 +278,7 @@ export default function Home() {
                       NOW
                     </p>
                   </div>
-                  
+
                   {/* Container has a strictly fixed height */}
                   <div className="relative h-6 overflow-hidden">
                     <AnimatePresence mode="popLayout">
@@ -261,14 +290,70 @@ export default function Home() {
                         transition={{ duration: 0.5, ease: "easeInOut" }}
                         className="absolute inset-0 text-sm text-blue-400 whitespace-nowrap"
                       >
-                        {NOW_ITEMS[nowIndex]}
+                        {nowItems[nowIndex]}
                       </motion.div>
                     </AnimatePresence>
                   </div>
                 </section>
-                
               </div>
             </main>
+
+            {/* --- DRAGGABLE WINDOWS --- */}
+            <AnimatePresence>
+              {openWindows.map((windowId) => (
+                <motion.div
+                  key={windowId}
+                  drag
+                  dragMomentum={false}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  className="fixed top-1/4 left-1/4 z-[100] w-[350px] md:w-[450px] bg-[#0A0A0C]/90 backdrop-blur-xl border border-zinc-800/80 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
+                >
+                  {/* Window Title Bar */}
+                  <div className="bg-zinc-900/50 p-3 px-4 border-b border-zinc-800/80 flex justify-between items-center cursor-move">
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded text-[10px] bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+                        M
+                      </span>
+                      <span className="text-xs font-mono text-zinc-300 capitalize">
+                        {windowId}.exe
+                      </span>
+                    </div>
+                    {/* Close Button */}
+                    <button
+                      onClick={() => closeWindow(windowId)}
+                      className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-400 transition-colors"
+                    />
+                  </div>
+
+                  {/* Window Content */}
+                  <div className="p-6 text-zinc-300 font-sans min-h-[200px]">
+                    {windowId === "projects" && (
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-bold text-white">
+                          System Projects
+                        </h3>
+                        <div className="p-3 border border-zinc-800 rounded-lg bg-zinc-950">
+                          <p className="text-blue-400 text-sm font-bold">
+                            Redis-Compatible Server
+                          </p>
+                          <p className="text-xs text-zinc-500 mt-1">
+                            Built entirely from scratch in C++ handling
+                            concurrent TCP connections.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {windowId === "notes" && (
+                      <p className="text-sm text-zinc-400">
+                        Loading distributed systems notes...
+                      </p>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </OSLayout>
         </motion.div>
       )}
