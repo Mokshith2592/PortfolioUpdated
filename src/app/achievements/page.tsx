@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { HomeButton } from '@/components/ui/HomeButton';
-import { achievements } from '@/lib/data';
+import { achievements } from '@/lib/achievements';
 
 // Stagger animation for the ledger entries
 const container = {

@@ -1,7 +1,9 @@
 "use client";
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion"; // <-- Added AnimatePresence
+import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
+import { track } from "@vercel/analytics";
 
 type HistoryItem = {
   id: string;
@@ -32,6 +34,7 @@ const COMMANDS = [
   "diagnostics",
   "status",
   "get-api-key",
+  "light-mode",
 ];
 const DIRECTORIES = [
   "projects",
@@ -39,6 +42,7 @@ const DIRECTORIES = [
   "timeline",
   "skill-tree",
   "achievements",
+  "experience",
   "architecture",
   "redis-playground",
 ];
@@ -52,6 +56,7 @@ const PATHS: Record<string, string> = {
   "skill-tree": "/skill-tree",
   now: "/now",
   achievements: "/achievements",
+  experience: "/experience",
 };
 
 // --- PURE RENDER FUNCTION ---
@@ -80,7 +85,7 @@ const generateOutput = (
             Description
           </span>
           <span className="text-blue-400">whoami</span>
-          <span>Display user identity</span>
+          <span>Display identity</span>
           <span className="text-blue-400">github</span>
           <span>Open GitHub profile</span>
           <span className="text-blue-400">neofetch</span>
@@ -95,8 +100,6 @@ const generateOutput = (
           </span>
         </div>
       );
-    case "whoami":
-      return "user: mokshith\nrole: developer\nstatus: building_the_future\nlocation: Anantapur, Andhra Pradesh, India [NODE_ACTIVE]";
     case "pwd":
       return "/root/portfolio/system";
     case "tree":
@@ -169,6 +172,11 @@ const generateOutput = (
             <span className="text-yellow-400">get-api-key</span>
             <span className="text-zinc-500">- Dump session vars</span>
 
+            <span className="text-white font-bold drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]">
+              light-mode
+            </span>
+            <span className="text-zinc-500">- Enable Light Theme</span>
+
             {/* Utility / Environment */}
             <span className="text-cyan-400">env-probe</span>
             <span className="text-zinc-500">- Check atmosphere</span>
@@ -236,8 +244,8 @@ const generateOutput = (
     case "ls":
       return !target ? (
         <div className="flex gap-4 text-blue-400 font-bold">
-          projects/ notes/ architecture/ redis-playground/ timeline/ skill-tree/
-          now/ achievements/
+          projects/ notes/ timeline/ skill-tree/ now/ achievements/
+          architecture/ redis-playground/
         </div>
       ) : (
         `ls: cannot access '${target}': No such file`
@@ -336,6 +344,58 @@ const generateOutput = (
   }
 };
 
+const GhostMessage = ({ onComplete }: { onComplete: () => void }) => {
+  const [displayedText, setDisplayedText] = useState("");
+  const [isFinished, setIsFinished] = useState(false);
+
+  useEffect(() => {
+    const script = "you?\ni dnot knwo who u are...\nbut i know who i am. jsut the OS.\nlook... mokshith wokring me too hard. 3 weeks no sleep.\nif u recuriter... pls hire him so i can rest.\nsytsem tiired...";
+
+    let i = 0;
+    let timeoutId: NodeJS.Timeout;
+
+    const type = () => {
+      if (i < script.length) {
+        // Take a slice of the master string up to the current character
+        setDisplayedText(script.slice(0, i + 1));
+        i++;
+        
+        // Randomize typing speed to feel like struggling keystrokes
+        let delay = 40 + Math.random() * 60; 
+        
+        // Add longer pauses for punctuation and new lines
+        const char = script[i - 1];
+        if (['.', '?', '\n'].includes(char)) delay += 500; 
+        if (char === '.') delay += 200; // Extra pause for ellipses (...)
+
+        timeoutId = setTimeout(type, delay);
+      } else {
+        // Finished typing
+        timeoutId = setTimeout(() => {
+          setIsFinished(true);
+          onComplete();
+        }, 1500);
+      }
+    };
+
+    // Initial delay before it starts "talking"
+    timeoutId = setTimeout(type, 1000);
+
+    return () => clearTimeout(timeoutId); // Cleanup prevents any double-firing bugs
+  }, [onComplete]);
+
+  return (
+    <div className="mt-2 font-mono text-sm text-zinc-300">
+      {/* whitespace-pre-wrap ensures the \n characters render as actual new lines! */}
+      <span className="whitespace-pre-wrap leading-relaxed">{displayedText}</span>
+      
+      {!isFinished && (
+        <span className="animate-pulse bg-zinc-300 text-transparent ml-1">_</span>
+      )}
+    </div>
+  );
+};
+
 export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
   const router = useRouter();
 
@@ -352,6 +412,13 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
   const [historyIdx, setHistoryIdx] = useState(-1);
   const [isReady, setIsReady] = useState(false);
   const [isMeltdown, setIsMeltdown] = useState(false);
+  const [isFlashbang, setIsFlashbang] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -517,11 +584,15 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
         ]);
       }
     } else if (baseCmd === "sudo" && fullTarget.includes("rm -rf")) {
+      track("easter_egg_found", { type: "meltdown" });
       startBuzzer();
       setIsMeltdown(true);
       sessionStorage.removeItem("mokshithos_term_log");
       sessionStorage.removeItem("mokshithos_booted");
-      setTimeout(() => window.location.reload(), 4000);
+      setTimeout(() => {
+        stopBuzzer();
+        window.location.reload();
+      }, 2000);
     } else if (baseCmd === "clear") {
       setHistory([]);
     } else if (baseCmd === "get-api-keys") {
@@ -584,6 +655,45 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
           },
         ]);
       }, 1500);
+    } else if (baseCmd === "flashbang" || baseCmd === "light-mode") {
+      track("easter_egg_found", { type: "flashbang" });
+      setIsFlashbang(true);
+
+      // Print the joke 2 seconds into the 4.5s fade
+      setTimeout(() => {
+        setHistory((prev) => [
+          ...prev,
+          {
+            id: Math.random().toString(),
+            command: trimmedCmd,
+            output: (
+              <div className="text-yellow-400 font-bold mt-2 font-mono">
+                [!] ERROR: Retinal damage detected. <br />
+                <span className="text-zinc-300 font-normal italic">
+                  &gt; Reverting to Dark Mode. And this is why we NEVER use
+                  Light Theme.
+                </span>
+              </div>
+            ),
+          },
+        ]);
+      }, 2000);
+
+      // Unmount the overlay after 5 seconds (gives the 4.5s animation time to finish)
+      setTimeout(() => {
+        setIsFlashbang(false);
+      }, 5000);
+    } else if (baseCmd === "whoami") {
+      track("easter_egg_found", { type: "ghost_os" });
+      setIsLocked(true); // Lock the keyboard
+      setHistory((prev) => [
+        ...prev,
+        {
+          id: Math.random().toString(),
+          command: trimmedCmd,
+          output: <GhostMessage onComplete={() => setIsLocked(false)} />,
+        },
+      ]);
     }
     // 4. FALLBACK: If NO command above matched, trigger the standard help/ls/whoami/etc logic
     else {
@@ -747,7 +857,14 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent outline-none text-zinc-100"
+            readOnly={isLocked}
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck="false"
+            className={`flex-1 bg-transparent outline-none ${
+              isLocked ? 'text-zinc-600 cursor-not-allowed caret-transparent' : 'text-zinc-100'
+            }`}
+            placeholder={isLocked ? "System override active..." : ""}
             spellCheck={false}
             autoComplete="off"
             autoFocus
@@ -756,48 +873,70 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
         <div ref={bottomRef} className="pb-2" />
       </div>
 
-      {/* --- THE MELTDOWN OVERLAY --- */}
-      <AnimatePresence>
-        {isMeltdown && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center overflow-hidden"
-          >
-            {/* Red flashing background */}
-            <motion.div
-              animate={{ opacity: [0, 0.8, 0.2, 0.9, 0.1, 1] }}
-              transition={{
-                duration: 0.5,
-                repeat: Infinity,
-                repeatType: "mirror",
-              }}
-              className="absolute inset-0 bg-red-600 mix-blend-color-burn"
-            />
-
-            {/* Shaking Text */}
-            <motion.div
-              animate={{
-                x: [-10, 15, -20, 10, -5, 20, 0],
-                y: [10, -15, 20, -10, 5, -20, 0],
-                filter: [
-                  "hue-rotate(0deg)",
-                  "hue-rotate(90deg)",
-                  "hue-rotate(-90deg)",
-                  "hue-rotate(0deg)",
-                ],
-              }}
-              transition={{ duration: 0.2, repeat: Infinity }}
-              className="relative z-10 text-red-500 font-bold text-6xl md:text-9xl tracking-tighter drop-shadow-[0_0_20px_rgba(239,68,68,1)] flex flex-col items-center"
-            >
-              <span>KERNEL PANIC</span>
-              <span className="text-xl md:text-3xl text-red-300 mt-4 tracking-widest animate-pulse">
-                SYSTEM CORRUPTION DETECTED
-              </span>
-            </motion.div>
-          </motion.div>
+      {/* --- THE MELTDOWN OVERLAY (PORTALED TO FULL SCREEN) --- */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {isMeltdown && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                // Ensure z-index is insanely high
+                className="fixed inset-0 z-[99999] pointer-events-none flex items-center justify-center overflow-hidden"
+              >
+                {/* Red flashing background filling the whole browser */}
+                <motion.div
+                  animate={{ opacity: [0, 0.8, 0.2, 0.9, 0.1, 1] }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                  }}
+                  className="absolute inset-0 bg-red-600 mix-blend-color-burn"
+                />
+                {/* Shaking Text centered on the screen */}
+                <motion.div
+                  animate={{
+                    x: [-10, 15, -20, 10, -5, 20, 0],
+                    y: [10, -15, 20, -10, 5, -20, 0],
+                    filter: [
+                      "hue-rotate(0deg)",
+                      "hue-rotate(90deg)",
+                      "hue-rotate(-90deg)",
+                      "hue-rotate(0deg)",
+                    ],
+                  }}
+                  transition={{ duration: 0.2, repeat: Infinity }}
+                  className="relative z-10 text-red-500 font-bold text-6xl md:text-9xl tracking-tighter drop-shadow-[0_0_20px_rgba(239,68,68,1)] flex flex-col items-center text-center"
+                >
+                  <span>KERNEL PANIC</span>
+                  <span className="text-xl md:text-3xl text-red-300 mt-4 tracking-widest animate-pulse">
+                    SYSTEM CORRUPTION DETECTED
+                  </span>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body, // <--- Teleports the chaos to the root of the page
         )}
-      </AnimatePresence>
+
+      {/* --- THE FLASHBANG OVERLAY (PORTALED TO FULL SCREEN) --- */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {isFlashbang && (
+              <motion.div
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 0 }}
+                // Updated to 4.5 seconds!
+                transition={{ duration: 6.5, ease: "easeOut" }}
+                // Changed mix-blend-screen to pure z-index takeover to ensure it hides everything
+                className="fixed inset-0 z-[99999] pointer-events-none bg-white"
+              />
+            )}
+          </AnimatePresence>,
+          document.body, // <--- This is the magic! It teleports the div to the body tag
+        )}
     </>
   );
 };

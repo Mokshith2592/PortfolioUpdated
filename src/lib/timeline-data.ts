@@ -14,56 +14,60 @@ export const timelineData: TimelineEvent[] = [
   {
     id: "future",
     year: "Future",
-    title: "Distributed Systems Architecture",
+    title: "Distributed Systems & Scalable Infrastructure",
     status: "future",
-    description: "Deep dive into system design and highly available consensus protocols.",
-    keyLearning: "Mastering fault tolerance and distributed state machines.",
-    technologies: ["System Design", "Raft Consensus", "Kubernetes", "Distributed Databases"],
-    projects: ["Planned: Distributed KV Store"],
-    lessonsLearned: "Systems fail. Architecting for failure is the only way to ensure uptime."
+    description: "Exploring distributed systems, cloud-native architectures, and large-scale backend infrastructure.",
+    keyLearning: "Building systems that remain reliable under scale and failure.",
+    technologies: ["Kubernetes", "Distributed Systems", "Cloud Computing", "System Design"],
+    projects: ["Distributed KV Store", "Scalable Backend Services"],
+    lessonsLearned: "Every system works until it scales."
   },
+
   {
     id: "2026",
     year: "2026",
-    title: "Systems Engineering & Enterprise Data",
+    title: "Systems Engineering & Enterprise Development",
     status: "present",
-    description: "Building low-latency systems and joining Visa as a Data Engineering Intern.",
-    keyLearning: "Understanding network protocols, memory allocation, and enterprise-scale pipelines.",
-    technologies: ["C++", "Redis Internals", "Networking", "Distributed Systems"],
-    projects: ["Redis-Compatible Server", "Visa Internship"],
-    lessonsLearned: "Concurrency is unforgiving. Reading RFCs and official specs is a superpower."
+    description: "Working as a Software Engineering Intern at Visa while building low-level systems in C++.",
+    keyLearning: "Understanding enterprise data pipelines, networking fundamentals, and production software engineering.",
+    technologies: ["C++", "PySpark", "Java", "Talend ETL", "Linux", "Networking"],
+    projects: ["Redis-Compatible Server", "Expense Tracker", "Talend to PySpark Migration"],
+    lessonsLearned: "Production systems are more about reliability than clever code."
   },
+
   {
     id: "2025",
     year: "2025",
-    title: "Advanced Algorithms & Full-Stack",
+    title: "Full-Stack Development & Competitive Programming",
     status: "past",
-    description: "Intense focus on competitive programming and full-stack application architecture.",
-    keyLearning: "Optimizing time/space complexity and designing relational schemas.",
-    technologies: ["Advanced DSA", "Oracle SQL", "Next.js", "TypeScript"],
-    projects: ["T&P Portal", "Competitive Programming Setup"],
-    lessonsLearned: "A beautiful UI is useless if the database queries bottleneck the system."
+    description: "Built multiple web applications while pushing problem-solving skills through competitive programming.",
+    keyLearning: "Learning how databases, APIs, and frontend applications work together.",
+    technologies: ["React", "Node.js", "Express.js", "MongoDB", "Oracle SQL"],
+    projects: ["Travel Diary", "Todo App", "AI Chatbot", "Portfolio Website"],
+    lessonsLearned: "Building products teaches lessons that tutorials never can."
   },
+
   {
     id: "2024",
     year: "2024",
-    title: "Data Intelligence & Modeling",
+    title: "Machine Learning & Core CS",
     status: "past",
-    description: "Expanded into data manipulation and machine learning concepts.",
-    keyLearning: "Understanding how algorithms process and recognize patterns in raw data.",
-    technologies: ["Python", "Machine Learning", "SQL", "Data Analysis"],
-    projects: ["Digit Recognition Project"],
-    lessonsLearned: "Data formatting and cleaning take up 80% of the engineering effort in ML."
+    description: "Explored machine learning and strengthened computer science fundamentals.",
+    keyLearning: "Understanding how models learn patterns and how algorithms impact performance.",
+    technologies: ["Python", "TensorFlow", "Keras", "Machine Learning", "SQL"],
+    projects: ["Digit Recognition", "Sonar Rock vs Mine Prediction"],
+    lessonsLearned: "Better data often beats a more complex model."
   },
+
   {
     id: "2023",
     year: "2023",
-    title: "The Core Foundation",
+    title: "Beginning the Journey",
     status: "past",
-    description: "Wrote my first lines of code. Discovered a passion for how computers execute logic.",
-    keyLearning: "Grasping control flow, loops, and basic memory management.",
-    technologies: ["C++", "Console Applications", "Standard Template Library"],
-    projects: ["First Console Apps"],
-    lessonsLearned: "Pointers are confusing at first, but they unlock how the computer actually works."
+    description: "Started B.Tech in Computer Science at NIT Warangal and began exploring programming and problem solving.",
+    keyLearning: "Learning programming fundamentals, data structures, and algorithmic thinking.",
+    technologies: ["C++", "STL", "OOP", "Basic DSA"],
+    projects: ["Console Applications", "File Zipper using Huffman Encoding"],
+    lessonsLearned: "Consistency compounds faster than talent."
   }
 ];

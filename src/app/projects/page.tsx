@@ -17,10 +17,10 @@ const ProjectCard = ({ project }: { project: any }) => {
 
   return (
     <div 
-      className="group relative h-full rounded-xl border border-zinc-800 bg-[#0F1115]/80 overflow-hidden backdrop-blur-md shadow-lg transition-colors duration-300 hover:border-zinc-700"
+      className="group relative h-full flex flex-col rounded-xl border border-zinc-800 bg-[#0F1115]/80 overflow-hidden backdrop-blur-md shadow-lg transition-all duration-300 hover:border-zinc-600 hover:shadow-blue-900/20"
       onMouseMove={handleMouseMove}
     >
-      {/* 1. Restored Spotlight (0.1 opacity for a clean, visible glow) */}
+      {/* 1. Restored Spotlight */}
       <motion.div
         className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-500 group-hover:opacity-100 z-0"
         style={{
@@ -38,13 +38,13 @@ const ProjectCard = ({ project }: { project: any }) => {
       <Link 
         href={project.link} 
         target={project.link.startsWith('http') ? "_blank" : "_self"}
-        className="relative flex h-full flex-col p-6 z-10"
+        className="relative flex flex-col h-full p-6 z-10"
       >
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start mb-3">
           <h2 className="text-xl font-bold text-zinc-100 group-hover:text-blue-400 transition-colors">
             {project.title}
           </h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mt-1">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500/60 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -52,16 +52,31 @@ const ProjectCard = ({ project }: { project: any }) => {
           </div>
         </div>
         
-        <p className="text-zinc-400 text-sm mb-8 leading-relaxed flex-1 group-hover:text-zinc-300 transition-colors">
+        {/* TEXT CLAMPING APPLIED HERE */}
+        <p 
+          className="text-zinc-400 text-sm mb-6 leading-relaxed flex-1 group-hover:text-zinc-300 transition-colors line-clamp-4"
+          title={project.description} // Shows full description on native browser hover
+        >
           {project.description}
         </p>
 
-        {/* System Tech Stack */}
-        <div className="mt-auto pt-4 border-t border-zinc-800/60">
-          <span className="block text-[10px] text-zinc-500 uppercase tracking-widest font-mono mb-3">System Requirements</span>
-          <div className="flex flex-wrap gap-2">
+        {/* System Tech Stack (More compact) */}
+        <div className="mt-auto pt-4 border-t border-zinc-800/60 flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <span className="block text-[10px] text-zinc-500 uppercase tracking-widest font-mono">
+              Sys_Req
+            </span>
+            <span className="text-[10px] text-zinc-600 font-mono group-hover:text-blue-500/50 transition-colors">
+              EXECUTE_&gt;
+            </span>
+          </div>
+          
+          <div className="flex flex-wrap gap-1.5">
             {project.tech.map((t: string) => (
-              <span key={t} className="text-[10px] font-mono text-zinc-400 bg-black/60 px-2 py-1 rounded border border-zinc-800 shadow-inner">
+              <span 
+                key={t} 
+                className="text-[10px] font-mono text-zinc-400 bg-black/60 px-2 py-0.5 rounded border border-zinc-800 shadow-inner"
+              >
                 {t}
               </span>
             ))}
