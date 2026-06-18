@@ -2,19 +2,20 @@
 import { motion } from "framer-motion";
 import { HomeButton } from '@/components/ui/HomeButton';
 import { achievements } from '@/lib/achievements';
+import { motion, Variants } from 'framer-motion';
 
 // Stagger animation for the ledger entries
-const container = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1 }
+    transition: { staggerChildren: 0.15 }
   }
 };
 
-const item = {
+const item: Variants = {
   hidden: { opacity: 0, x: -20 },
-  show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 100 } }
 };
 
 export default function Achievements() {
