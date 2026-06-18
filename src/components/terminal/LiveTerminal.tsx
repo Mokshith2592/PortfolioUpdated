@@ -528,7 +528,7 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
               'Welcome to MokshithOS v2.0. Type "help" to see available commands.',
           },
         ];
-        let rebuiltCmdHistory: string[] = [];
+        const rebuiltCmdHistory: string[] = [];
 
         parsedLog.forEach((cmdStr) => {
           const lowerCmd = cmdStr.toLowerCase();
@@ -586,7 +586,7 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
 
     // 1. Session Storage Side-Effect
     const savedLog = sessionStorage.getItem("mokshithos_term_log");
-    let logArr = savedLog ? JSON.parse(savedLog) : [];
+    const logArr = savedLog ? JSON.parse(savedLog) : [];
     if (baseCmd === "clear") {
       sessionStorage.removeItem("mokshithos_term_log");
     } else {
@@ -909,7 +909,6 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
                 : "text-zinc-100"
             }`}
             placeholder={isLocked ? "System override active..." : ""}
-            spellCheck={false}
             autoComplete="off"
             autoFocus
           />

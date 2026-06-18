@@ -106,7 +106,7 @@ export default function Home() {
         .catch(() => ({ playing: false }));
 
       // 3. Selection Logic
-      let finalStream: string[] = [];
+      const finalStream: string[] = [];
 
       // Slot A: Spotify (1)
       if (spotifyRes.playing) {
