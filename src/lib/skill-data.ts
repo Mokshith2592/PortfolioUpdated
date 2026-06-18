@@ -17,9 +17,10 @@ export const skillGraph: SkillCategory[] = [
   {
     category: "Programming",
     skills: [
-      { name: "C++", status: "completed", confidence: 90, projects: ["Competitive Programming", "Redis Server"], desc: "STL, OOP, Templates, Memory Management, and Multithreading." },
-      { name: "Python", status: "completed", confidence: 85, projects: ["Digit Recognition"], desc: "Data Analysis, Machine Learning, Deep Learning, and Automation scripts." },
-      { name: "JavaScript", status: "completed", confidence: 85, projects: ["AI Chatbot", "Portfolio", "Todo App"], desc: "ES6+, DOM Manipulation, Async Programming, and API Integration." }
+      { name: "C++", status: "completed", confidence: 90, projects: ["Competitive Programming", "Redis Server"], desc: "STL, OOP, Memory Management." },
+      { name: "Python", status: "completed", confidence: 70, projects: ["Digit Recognition"], desc: "Data Analysis, Machine Learning, Deep Learning, and Automation scripts." },
+      { name: "JavaScript", status: "completed", confidence: 60, projects: ["AI Chatbot", "Portfolio", "Todo App"], desc: "ES6+, DOM Manipulation, Async Programming, and API Integration." } ,
+      { name: "Java", status: "completed", confidence: 70, projects: ["Applets"], desc: "Multithreading"}
     ]
   },
 

@@ -35,6 +35,7 @@ const COMMANDS = [
   "status",
   "get-api-key",
   "light-mode",
+  "contact",
 ];
 const DIRECTORIES = [
   "projects",
@@ -54,7 +55,6 @@ const PATHS: Record<string, string> = {
   architecture: "/architecture/redis",
   timeline: "/timeline",
   "skill-tree": "/skill-tree",
-  now: "/now",
   achievements: "/achievements",
   experience: "/experience",
 };
@@ -86,12 +86,12 @@ const generateOutput = (
           </span>
           <span className="text-blue-400">whoami</span>
           <span>Display identity</span>
-          <span className="text-blue-400">github</span>
-          <span>Open GitHub profile</span>
           <span className="text-blue-400">neofetch</span>
           <span>Show system stats</span>
           <span className="text-blue-400">resume</span>
           <span>View Resume</span>
+          <span className="text-blue-400">contact</span>
+          <span>Contact Me</span>
           <span className="text-red-400 font-bold animate-pulse">
             --reveal-secrets
           </span>
@@ -150,6 +150,44 @@ const generateOutput = (
       );
     case "github":
       return "Redirecting to GitHub profile...";
+    case "contact":
+      return (
+        <div className="space-y-4">
+          <p className="text-zinc-300">Initiating secure comms channel...</p>
+          <div className="pl-4 border-l-2 border-blue-500 space-y-2 font-mono">
+            <p>
+              <span className="text-zinc-500 w-24 inline-block">EMAIL:</span>
+              <a
+                href="mailto:your.email@example.com"
+                className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+              >
+                mokshithgattu@gmail.com
+              </a>
+            </p>
+            <p>
+              <span className="text-zinc-500 w-24 inline-block">LINKEDIN:</span>
+              <a
+                href="https://www.linkedin.com/in/mokshith-sai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+              >
+                linkedin.com/in/mokshith-sai
+              </a>
+            </p>
+            <p>
+              <span className="text-zinc-500 w-24 inline-block">GITHUB:</span>
+              <a
+                href="https://github.com/Mokshith2592"
+                target="_blank"
+                className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+              >
+                github.com/Mokshith2592
+              </a>
+            </p>
+          </div>
+        </div>
+      );
     case "--reveal-secrets":
       return (
         <div className="text-zinc-300">
@@ -205,12 +243,11 @@ const generateOutput = (
           <div className="text-zinc-300 w-full">
             <div className="text-white font-bold mb-3 text-sm border-b border-zinc-700/50 pb-2">
               <span className="text-blue-400">mokshith</span>@
-              <span className="text-blue-400">mokshithOS</span>
+              <span className="text-blue-400">localhost</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
               <div>
-                <span className="text-blue-400 font-bold">OS:</span> MokshithOS
-                v2.0
+                <span className="text-blue-400 font-bold">OS:</span> Dev Console v2.0
               </div>
               <div>
                 <span className="text-blue-400 font-bold">Host:</span> NIT
@@ -218,7 +255,7 @@ const generateOutput = (
               </div>
               <div>
                 <span className="text-blue-400 font-bold">Kernel:</span>{" "}
-                redis-core
+                CSE'27
               </div>
               <div>
                 <span className="text-blue-400 font-bold">Shell:</span> mokshsh
@@ -231,7 +268,7 @@ const generateOutput = (
               </div>
               <div className="col-span-full mt-2 pt-2 border-t border-zinc-800/50">
                 <span className="text-purple-400 font-bold">Focus:</span>{" "}
-                Systems Programming
+                Learning How Things Work
               </div>
               <div className="col-span-full">
                 <span className="text-zinc-500 font-bold">Uptime:</span> 3 Years
@@ -244,7 +281,7 @@ const generateOutput = (
     case "ls":
       return !target ? (
         <div className="flex gap-4 text-blue-400 font-bold">
-          projects/ notes/ timeline/ skill-tree/ now/ achievements/
+          projects/ notes/ timeline/ skill-tree/ achievements/
           architecture/ redis-playground/
         </div>
       ) : (
@@ -349,7 +386,8 @@ const GhostMessage = ({ onComplete }: { onComplete: () => void }) => {
   const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
-    const script = "you?\ni dnot knwo who u are...\nbut i know who i am. jsut the OS.\nlook... mokshith wokring me too hard. 3 weeks no sleep.\nif u recuriter... pls hire him so i can rest.\nsytsem tiired...";
+    const script =
+      "you?\ni dnot knwo who u are...\nbut i know who i am. jsut the OS.\nlook... mokshith wokring me too hard. 3 weeks no sleep.\nif u recuriter... pls hire him so i can rest.\nsytsem tiired...";
 
     let i = 0;
     let timeoutId: NodeJS.Timeout;
@@ -359,14 +397,14 @@ const GhostMessage = ({ onComplete }: { onComplete: () => void }) => {
         // Take a slice of the master string up to the current character
         setDisplayedText(script.slice(0, i + 1));
         i++;
-        
+
         // Randomize typing speed to feel like struggling keystrokes
-        let delay = 40 + Math.random() * 60; 
-        
+        let delay = 40 + Math.random() * 60;
+
         // Add longer pauses for punctuation and new lines
         const char = script[i - 1];
-        if (['.', '?', '\n'].includes(char)) delay += 500; 
-        if (char === '.') delay += 200; // Extra pause for ellipses (...)
+        if ([".", "?", "\n"].includes(char)) delay += 500;
+        if (char === ".") delay += 200; // Extra pause for ellipses (...)
 
         timeoutId = setTimeout(type, delay);
       } else {
@@ -387,10 +425,14 @@ const GhostMessage = ({ onComplete }: { onComplete: () => void }) => {
   return (
     <div className="mt-2 font-mono text-sm text-zinc-300">
       {/* whitespace-pre-wrap ensures the \n characters render as actual new lines! */}
-      <span className="whitespace-pre-wrap leading-relaxed">{displayedText}</span>
-      
+      <span className="whitespace-pre-wrap leading-relaxed">
+        {displayedText}
+      </span>
+
       {!isFinished && (
-        <span className="animate-pulse bg-zinc-300 text-transparent ml-1">_</span>
+        <span className="animate-pulse bg-zinc-300 text-transparent ml-1">
+          _
+        </span>
       )}
     </div>
   );
@@ -862,7 +904,9 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
             autoCorrect="off"
             spellCheck="false"
             className={`flex-1 bg-transparent outline-none ${
-              isLocked ? 'text-zinc-600 cursor-not-allowed caret-transparent' : 'text-zinc-100'
+              isLocked
+                ? "text-zinc-600 cursor-not-allowed caret-transparent"
+                : "text-zinc-100"
             }`}
             placeholder={isLocked ? "System override active..." : ""}
             spellCheck={false}

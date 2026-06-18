@@ -1,13 +1,8 @@
 export default function OSLayout({ children }: { children: React.ReactNode }) {
+  // Removed the extra flex-col, min-h-screen, and pb-8 so it doesn't fight the main layout!
   return (
-    <div className="flex flex-col min-h-screen bg-black">
-      {/* Added pb-8 so the content doesn't get hidden behind the new global taskbar */}
-      <div className="flex-1 pb-8">{children}</div>
-      
-      {/* 
-        The old hardcoded <footer> was completely deleted from here! 
-        Your new <StatusBar /> is now handling this from app/layout.tsx 
-      */}
+    <div className="h-full w-full">
+      {children}
     </div>
   );
 }

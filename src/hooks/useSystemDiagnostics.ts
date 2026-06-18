@@ -24,7 +24,6 @@ export const useUptime = () => {
   const [uptime, setUptime] = useState("--m --s");
 
   useEffect(() => {
-    // Save session start to sessionStorage so it persists across page reloads!
     let startTime = sessionStorage.getItem("mokshithos_session_start");
     if (!startTime) {
       startTime = Date.now().toString();
@@ -35,9 +34,11 @@ export const useUptime = () => {
 
     const updateUptime = () => {
       const diffInSeconds = Math.floor((Date.now() - startTimestamp) / 1000);
-      const m = Math.floor(diffInSeconds / 60).toString().padStart(2, "0");
-      const s = (diffInSeconds % 60).toString().padStart(2, "0");
+      
       const h = Math.floor(diffInSeconds / 3600);
+      // BUG FIX: Use modulo 3600 before dividing by 60 so minutes cap at 59!
+      const m = Math.floor((diffInSeconds % 3600) / 60).toString().padStart(2, "0");
+      const s = (diffInSeconds % 60).toString().padStart(2, "0");
 
       if (h > 0) setUptime(`${h}h ${m}m ${s}s`);
       else setUptime(`${m}m ${s}s`);
@@ -53,14 +54,36 @@ export const useUptime = () => {
 
 export const usePortfolioStats = () => {
   const pathname = usePathname();
-  
-  // Format the path to look like a Unix directory (e.g., "/projects" -> "~/projects")
   const currentRoute = pathname === "/" ? "~" : `~${pathname}`;
+  
+  // State to hold your live Gist data
+  const [liveConfig, setLiveConfig] = useState({
+    currentStatus: "INITIALIZING...", 
+    statusColor: "green"
+  });
+
+  useEffect(() => {
+    // YOUR exact Gist Raw URL. 
+    // We added ?cacheBust to force the browser to always fetch the latest version!
+    const GIST_URL = `https://gist.githubusercontent.com/Mokshith2592/3249c77aa9ff686e5485db756b298fd2/raw?t=${Date.now()}`;
+
+    fetch(GIST_URL)
+      .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+      })
+      .then(data => setLiveConfig(data))
+      .catch(err => {
+        console.error("Failed to fetch OS config", err);
+        // Fallback if the fetch fails
+        setLiveConfig({ currentStatus: "OFFLINE_MODE" ,statusColor: "red"}); 
+      });
+  }, []);
 
   return {
     currentRoute,
-    status: "BUILDING", // Options: ONLINE, BUILDING, AVAILABLE
-    // Replace the numbers below with: projects.length, notes.length, etc.
+    status: liveConfig.currentStatus, // <--- Now fully dynamic!
+    statusColor: liveConfig.statusColor,
     counts: {
       projects: 7, 
       notes: 10,

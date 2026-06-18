@@ -39,9 +39,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={`${inter.className} bg-[#050505] text-zinc-300 antialiased selection:bg-blue-500/30`}>
-        <div className="flex flex-col min-h-screen relative z-0">
+        {/* Changed to h-[100dvh] and added overflow-hidden to lock the OS to the exact screen size */}
+        <div className="flex flex-col h-[100dvh] overflow-hidden relative z-0">
           <NetworkParticles />
-          <div className="flex-1 relative z-10 pb-8">
+          <div className="flex-1 relative z-10 pb-8 overflow-y-auto">
             {children}
           </div>
           <StatusBar />

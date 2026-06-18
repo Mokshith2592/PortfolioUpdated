@@ -17,8 +17,9 @@ export const experiences = [
     techStack: [
       "PySpark",
       "Talend",
+      "Java",
       "SQL",
-      "Python",
+      "MongoDB",
       "Git"
     ],
   },
