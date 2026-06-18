@@ -21,9 +21,6 @@ const item: Variants = {
 };
 
 export default function SkillTreePage() {
-  // ... rest of your code stays exactly the same
-
-export default function SkillTreePage() {
   return (
     // Reduced padding on mobile (p-6), removed overflow-x-hidden to prevent weird scrolling bugs
     <main className="min-h-screen text-white p-6 md:p-16 max-w-5xl mx-auto relative z-10 pb-24 md:pb-16">
