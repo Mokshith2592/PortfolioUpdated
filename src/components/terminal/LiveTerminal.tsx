@@ -875,11 +875,10 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
   return (
     <>
       <div
-        // 1. Replaced the hardcoded heights with 'h-full'
-        // 2. Added 'custom-scrollbar' (optional, but keeps it clean if you have that class)
-        className="w-full h-full bg-zinc-950/20 backdrop-blur-md border border-zinc-800/40 rounded-xl p-4 md:p-6 font-mono text-sm overflow-y-auto cursor-text shadow-2xl z-10 relative"
+        className="absolute inset-0 bg-transparent font-mono text-sm overflow-y-auto cursor-text z-10"
         onClick={focusInput}
       >
+        {/* Your history.map and input stuff stays exactly the same here */}
         {history.map((item) => (
           <div key={item.id} className="mb-3">
             {item.command && (
