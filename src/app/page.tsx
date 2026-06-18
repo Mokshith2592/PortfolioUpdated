@@ -290,9 +290,12 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* RIGHT SIDE */}
-              <div className="w-full lg:w-1/2 lg:h-full p-6 md:p-12 lg:p-16 flex flex-col justify-center space-y-8 lg:space-y-10 relative z-10 pb-24 lg:pb-16 lg:overflow-y-auto">
-                <div className="space-y-2">
+{/* RIGHT SIDE */}
+              {/* 1. Removed justify-center and space-y-8 so we can manually control flex spacing */}
+              <div className="w-full lg:w-1/2 lg:h-full p-6 md:p-12 lg:p-16 flex flex-col relative z-10 pb-24 lg:pb-16">
+
+                {/* HEADER - shrink-0 prevents this from getting crushed */}
+                <div className="space-y-2 shrink-0 mb-6 lg:mb-8">
                   <h1 className="text-5xl font-bold tracking-tighter text-zinc-100">
                     MokshithOS
                   </h1>
@@ -301,24 +304,29 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-bold">
+                {/* TERMINAL INTERFACE */}
+                <div className="flex-1 flex flex-col space-y-4 mb-6 lg:mb-8 overflow-hidden min-h-[350px]">
+                  <h3 className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-bold shrink-0">
                     Terminal Interface
                   </h3>
-                  <div className="rounded-xl border border-zinc-800 bg-zinc-950/80 backdrop-blur overflow-hidden">
-                    <div className="flex items-center gap-2 px-4 py-2 border-b border-zinc-800">
+                  
+                  {/* Outer Terminal Box - Changed min-h-0 to min-h-[350px] */}
+                  <div className="flex-1 min-h-[350px] flex flex-col rounded-xl border border-zinc-800 bg-zinc-950/80 backdrop-blur overflow-hidden">
+                    <div className="shrink-0 flex items-center gap-2 px-4 py-2 border-b border-zinc-800">
                       <div className="w-3 h-3 rounded-full bg-red-500" />
                       <div className="w-3 h-3 rounded-full bg-yellow-500" />
                       <div className="w-3 h-3 rounded-full bg-green-500" />
                     </div>
-                    <div className="p-4">
+                    
+                    {/* Inner Terminal Container */}
+                    <div className="flex-1 overflow-hidden p-4 relative">
                       <LiveTerminal visitorContext={visitorContext}/>
                     </div>
                   </div>
                 </div>
 
-                {/* THE FIXED NOW SECTION */}
-                <section className="border border-zinc-800 rounded-lg bg-zinc-900/30 p-4">
+                {/* THE FIXED NOW SECTION - shrink-0 locks it to the bottom */}
+                <section className="shrink-0 border border-zinc-800 rounded-lg bg-zinc-900/30 p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>

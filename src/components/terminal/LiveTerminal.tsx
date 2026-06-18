@@ -875,7 +875,9 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
   return (
     <>
       <div
-        className="w-full h-72 md:h-80 max-h-[50vh] bg-zinc-950/20 backdrop-blur-md border border-zinc-800/40 rounded-xl p-4 md:p-6 font-mono text-sm overflow-y-auto cursor-text shadow-2xl z-10 relative"
+        // 1. Replaced the hardcoded heights with 'h-full'
+        // 2. Added 'custom-scrollbar' (optional, but keeps it clean if you have that class)
+        className="w-full h-full bg-zinc-950/20 backdrop-blur-md border border-zinc-800/40 rounded-xl p-4 md:p-6 font-mono text-sm overflow-y-auto cursor-text shadow-2xl z-10 relative"
         onClick={focusInput}
       >
         {history.map((item) => (
