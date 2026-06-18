@@ -145,14 +145,25 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [isBooting, nowItems]); // Watch 'nowItems' so it updates when data arrives
 
-  // Location API
-  const [visitorContext, setVisitorContext] = useState<any>(null);
+  // Location API - Fixed to use the correct API variables!
+  // Location API - Switched to GeoJS (No rate limits, adblock friendly)
+  const [visitorContext, setVisitorContext] = useState<{city: string, country: string} | null>(null);
 
   useEffect(() => {
-    fetch("https://ipapi.co/json/")
+    fetch("https://get.geojs.io/v1/ip/geo.json")
       .then((res) => res.json())
-      .then((data) => setVisitorContext(data))
-      .catch(() => console.log("Geo lookup failed, skipping."));
+      .then((data) => {
+        // Logging it to the console so we can see exactly what the browser sees!
+        console.log("Geo Tracking Data:", data); 
+        
+        if (data && data.city && data.country) {
+          setVisitorContext({
+            city: data.city,
+            country: data.country // GeoJS uses 'country' perfectly natively
+          });
+        }
+      })
+      .catch((err) => console.log("Geo lookup blocked by browser:", err));
   }, []);
 
   return (
@@ -293,7 +304,6 @@ export default function Home() {
               {/* RIGHT SIDE */}
               {/* RIGHT SIDE - ABANDONING FLEXBOX FOR STRICT CSS GRID */}
               <div className="w-full lg:w-1/2 h-[calc(100dvh)] p-6 md:p-12 lg:p-16 grid grid-rows-[auto_minmax(0,1fr)_auto] gap-6 lg:gap-8 relative z-10 pb-24 lg:pb-16 overflow-hidden">
-
                 {/* ROW 1: HEADER (Auto height) */}
                 <div className="space-y-2">
                   <h1 className="text-5xl font-bold tracking-tighter text-zinc-100">
@@ -309,7 +319,7 @@ export default function Home() {
                   <h3 className="text-[10px] uppercase tracking-[0.2em] text-zinc-600 font-bold mb-4">
                     Terminal Interface
                   </h3>
-                  
+
                   {/* Terminal Box */}
                   <div className="w-full h-full flex flex-col rounded-xl border border-zinc-800 bg-zinc-950/80 backdrop-blur overflow-hidden">
                     <div className="shrink-0 flex items-center gap-2 px-4 py-2 border-b border-zinc-800">
@@ -317,10 +327,10 @@ export default function Home() {
                       <div className="w-3 h-3 rounded-full bg-yellow-500" />
                       <div className="w-3 h-3 rounded-full bg-green-500" />
                     </div>
-                    
+
                     {/* Inner Terminal Container */}
                     <div className="relative flex-1 w-full h-full overflow-hidden p-4">
-                      <LiveTerminal visitorContext={visitorContext}/>
+                      <LiveTerminal visitorContext={visitorContext} />
                     </div>
                   </div>
                 </div>
@@ -352,7 +362,6 @@ export default function Home() {
                     </AnimatePresence>
                   </div>
                 </section>
-
               </div>
             </main>
 

@@ -681,6 +681,7 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
           output: "Viewing visitor security footprint...",
         },
       ]);
+      
       setTimeout(() => {
         setHistory((prev) => [
           ...prev,
@@ -690,8 +691,9 @@ export const LiveTerminal = ({ visitorContext }: { visitorContext: any }) => {
             output: (
               <div className="text-red-400 font-bold animate-pulse">
                 [!] INTRUSION DETECTED <br />
+                {/* Updated country_name to country right here! */}
                 LOCATION: {visitorContext?.city || "Unknown"},{" "}
-                {visitorContext?.country_name || "Unknown"}
+                {visitorContext?.country || "Unknown"}
               </div>
             ),
           },
