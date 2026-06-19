@@ -1,504 +1,364 @@
-# 💻 MokshithOS v1.0.0
+# MokshithOS Portfolio
 
-A highly interactive, terminal-driven developer portfolio that simulates a UNIX-like operating system.
+Interactive developer portfolio built with Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion, and Vercel Analytics.
 
-Instead of a traditional portfolio website, MokshithOS presents projects, engineering case studies, algorithmic notes, and technical documentation through a custom virtual file system powered by terminal commands.
+This project is designed like a personal operating system instead of a traditional portfolio site. The homepage acts like a terminal, and the rest of the site branches into projects, engineering notes, a skill graph, a timeline, achievements, experience, and Redis-themed interactive pages.
 
-Built to showcase systems engineering, software architecture, machine learning projects, and competitive programming knowledge in a way that feels authentic to developers.
+## What this portfolio includes
 
-![Next.js](https://img.shields.io/badge/Next.js-15+-black?style=for-the-badge\&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge\&logo=typescript\&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge\&logo=tailwind-css\&logoColor=white)
-![React Markdown](https://img.shields.io/badge/React_Markdown-20232A?style=for-the-badge\&logo=react\&logoColor=61DAFB)
+- Boot-screen style landing experience with a terminal-first UI
+- Interactive terminal with command history, tab completion, keyboard audio, and session persistence
+- Projects dashboard powered by shared data from `src/lib/data.ts`
+- Markdown-based notes system with dynamic routes at `/notes/[slug]`
+- Interactive skill tree powered by `src/lib/skill-data.ts`
+- Engineering timeline powered by `src/lib/timeline-data.ts`
+- Achievements and work experience pages
+- Redis playground with basic in-browser Redis-like commands
+- Redis architecture explainer page
+- Global status bar with route info, uptime, live clock, and portfolio counters
+- Live integrations for GitHub activity, Spotify now-playing, visitor geolocation, and a remote status config fallback
 
----
+## Main routes
 
-## 🚀 Overview
+| Route | Purpose |
+| --- | --- |
+| `/` | Main MokshithOS home screen with terminal |
+| `/projects` | Project grid |
+| `/notes` | Notes explorer |
+| `/notes/[slug]` | Individual note page rendered from Markdown content |
+| `/skill-tree` | Interactive knowledge graph |
+| `/timeline` | Engineering growth timeline |
+| `/achievements` | Achievement ledger |
+| `/experience` | Work history |
+| `/redis-playground` | Redis-like command sandbox |
+| `/architecture/redis` | Redis internals walkthrough |
 
-MokshithOS is not a static portfolio template.
+Additional routes present in the codebase:
 
-It is a fully interactive operating-system-inspired experience built using modern React and Next.js architecture. Visitors can navigate through projects and notes using familiar terminal commands such as:
+- `/projects/redis`
+- `/projects/tnp`
+- `/terminal`
+- `/about`
+- `/build-logs`
 
-```bash
-ls
-cd
-cat
-help
-clear
-```
+## How to use the portfolio
 
-The application behaves like a lightweight virtual file system, allowing users to explore content through a command-line interface rather than conventional navigation menus.
+### 1. Homepage terminal
 
----
+Open the site and use the terminal on `/`.
 
-## ✨ Key Features
-
-### 🖥️ Interactive Terminal Engine
-
-A custom-built terminal experience that supports:
-
-* Directory navigation
-* File discovery
-* Content previews
-* Dynamic routing
-* Command parsing
-
-Supported commands:
+Core navigation commands:
 
 ```bash
 help
 whoami
 ls
-cd
-cat
-clear
-sudo rm -rf /
-```
-
----
-
-### 📂 Virtual File System
-
-Projects and notes are exposed through a simulated file structure.
-
-Example:
-
-```bash
-projects/
-├── redis-server
-├── digit-recognition
-└── earthquake-analysis
-
-notes/
-├── binary-search.md
-├── trie-notes.md
-└── resp-protocol.md
-```
-
-The terminal validates paths and dynamically routes users to the correct pages.
-
----
-
-### ⚡ Dynamic Project Pages
-
-Projects are generated automatically from centralized data.
-
-Example routes:
-
-```text
-/projects/redis-server
-/projects/digit-recognition
-/projects/earthquake-analysis
-```
-
-No hardcoded page creation required.
-
----
-
-### 📝 Markdown-Powered Knowledge Base
-
-Technical notes are stored as GitHub-Flavored Markdown and rendered using:
-
-* react-markdown
-* remark-gfm
-
-Supports:
-
-* Headings
-* Tables
-* Checklists
-* Code blocks
-* Syntax highlighting
-* Multi-line documentation
-
-Example:
-
-```markdown
-# Understanding RESP Protocol
-
-RESP is the protocol used by Redis for communication between
-clients and servers.
-```
-
----
-
-### 🔄 Centralized Data Layer
-
-All content is managed from a single source of truth.
-
-```text
-src/lib/data.ts
-```
-
-Contains:
-
-* Projects
-* Technical notes
-* Metadata
-* File system structure
-
-Adding content requires editing only one file.
-
----
-
-## 🏗️ System Architecture
-
-### Live Terminal Flow
-
-```text
-User Input
-      │
-      ▼
-Command Parser
-      │
-      ▼
-Path Validator
-      │
-      ▼
-Data Layer
-      │
-      ▼
-Router / Content Renderer
-      │
-      ▼
-Terminal Output
-```
-
----
-
-### Project Architecture
-
-```text
-src/
-├── app/
-│   ├── globals.css
-│   ├── page.tsx
-│   │
-│   ├── projects/
-│   │   ├── page.tsx
-│   │   └── [slug]/page.tsx
-│   │
-│   └── notes/
-│       ├── page.tsx
-│       └── [slug]/page.tsx
-│
-├── components/
-│   ├── terminal/
-│   │   └── LiveTerminal.tsx
-│   │
-│   └── ui/
-│       └── HomeButton.tsx
-│
-└── lib/
-    └── data.ts
-```
-
----
-
-## ⚙️ Core Components
-
-### 📟 LiveTerminal.tsx
-
-The heart of MokshithOS.
-
-Responsibilities:
-
-* Command parsing
-* Virtual navigation
-* File resolution
-* Route generation
-* Output rendering
-
-Supported command types:
-
-```bash
-ls
-cd
-cat
-whoami
-help
-clear
-```
-
----
-
-### 📦 data.ts
-
-Acts as the database for the entire application.
-
-Stores:
-
-* Project definitions
-* Technical notes
-* Metadata
-* Virtual file system entries
-
-The terminal engine and dynamic routes both consume data from this file.
-
----
-
-### 📄 Dynamic Routes
-
-Uses Next.js App Router dynamic segments:
-
-```text
-/projects/[slug]
-/notes/[slug]
-```
-
-Allows unlimited scalability without creating individual page files.
-
----
-
-## ⌨️ Available Commands
-
-### help
-
-Lists all available commands.
-
-```bash
-help
-```
-
----
-
-### whoami
-
-Displays profile information.
-
-```bash
-whoami
-```
-
----
-
-### ls
-
-Lists contents of a directory.
-
-```bash
-ls
-
-ls projects
-
-ls notes
-```
-
----
-
-### cd
-
-Navigate to a directory or project.
-
-```bash
-cd projects/redis-server
-
+cd projects
 cd notes
-```
-
----
-
-### cat
-
-Preview file content directly inside the terminal.
-
-```bash
-cat notes/binary-search.md
-```
-
----
-
-### clear
-
-Clear terminal history.
-
-```bash
+cd timeline
+cd skill-tree
+cd achievements
+cd experience
+cd architecture
+cd redis-playground
+resume
+github
+contact
 clear
 ```
 
----
+Useful terminal behavior:
 
-### sudo rm -rf /
+- `Tab` autocompletes supported commands and directory names
+- `ArrowUp` and `ArrowDown` cycle through command history
+- `Ctrl + L` clears the terminal
+- `Ctrl + C` cancels the current input line
+- Terminal history is stored in `sessionStorage`
+- The boot sequence is shown once per browser session, then skipped
+- Not every supported command is surfaced by `help` or the default `ls` output
+
+Other supported commands and easter eggs include:
 
 ```bash
+pwd
+tree
+find redis
+neofetch
+status
+diagnostics
+roll
+ping google.com
+open projects
+open notes
+--reveal-secrets
+light-mode
 sudo rm -rf /
 ```
 
-Response:
+Notes about actual behavior:
 
-```text
-Unauthorized access blocked.
+- `cd ...` is the main way to navigate to portfolio sections from the terminal
+- `resume` opens `public/resume.pdf`
+- `github` opens the GitHub profile in a new tab
+- `cat notes/<slug>` does not render the full note in-terminal; it nudges the visitor toward the notes page
+
+### 2. Projects
+
+Visit `/projects` or run `cd projects` from the terminal.
+
+Project cards are rendered from `src/lib/data.ts`. Each project entry defines:
+
+- title
+- description
+- tech stack
+- link target
+
+Important maintainer note:
+
+- The projects grid is data-driven, but dedicated project detail pages currently exist only for `/projects/redis` and `/projects/tnp`
+- If you add or edit a project `link` in `src/lib/data.ts`, make sure that route actually exists or points to an external URL
+
+### 3. Notes
+
+Visit `/notes` or run `cd notes`.
+
+Notes come from the `notes` array inside `src/lib/data.ts` and are rendered with:
+
+- `react-markdown`
+- `remark-gfm`
+
+Each note supports:
+
+- headings
+- lists
+- inline code
+- fenced code blocks
+- GitHub-flavored Markdown tables and checklists
+- tags and published date metadata
+
+### 4. Skill tree
+
+Visit `/skill-tree` or run `cd skill-tree`.
+
+The page reads from `src/lib/skill-data.ts` and shows:
+
+- grouped skill categories
+- completed / learning / future states
+- confidence percentage
+- related projects
+- hover/tap detail cards
+
+### 5. Timeline
+
+Visit `/timeline` or run `cd timeline`.
+
+The page reads from `src/lib/timeline-data.ts`. Each node can be expanded to reveal:
+
+- key learning
+- technologies
+- retrospective lesson
+
+### 6. Achievements and experience
+
+Visit:
+
+- `/achievements`
+- `/experience`
+
+These pages are powered by:
+
+- `src/lib/achievements.ts`
+- `src/lib/experience.ts`
+
+### 7. Redis playground
+
+Visit `/redis-playground` or run `cd redis-playground`.
+
+Supported playground commands:
+
+```bash
+HELP
+SET key value
+GET key
+DEL key
+KEYS *
+PING
+FLUSHALL
 ```
 
----
+This is an in-browser stateful demo, not a real Redis server.
 
-## 🛠️ Local Development
+### 8. Redis architecture page
+
+Visit `/architecture/redis` or run `cd architecture`.
+
+This page provides a guided breakdown of:
+
+- client layer
+- TCP socket layer
+- RESP parser
+- command dispatcher
+- in-memory store
+
+## Setup on another laptop
 
 ### Prerequisites
 
-* Node.js 18+
-* npm
-* Git
+- Node.js 20.9 or newer
+- npm
+- Git
 
----
+Next.js 16 requires Node.js 20.9+.
 
-### Clone Repository
-
-```bash
-git clone https://github.com/Mokshith2592/PortfolioUpdated.git
-```
-
----
-
-### Enter Project
+### 1. Clone the repository
 
 ```bash
-cd PortfolioUpdated
+git clone <your-repo-url>
+cd portfolio
 ```
 
----
+### 2. Install dependencies
 
-### Install Dependencies
+```bash
+npm ci
+```
+
+If `npm ci` is not suitable in your environment, use:
 
 ```bash
 npm install
 ```
 
----
+### 3. Create local environment variables
 
-### Run Development Server
+Create a `.env.local` file in the project root.
+
+```bash
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+SPOTIFY_REFRESH_TOKEN=your_spotify_refresh_token
+```
+
+These values are only needed for the Spotify "now playing" integration used by `/api/spotify`.
+
+Without them:
+
+- the app still runs
+- the Spotify widget falls back to an offline/paused state
+
+### 4. Start the development server
 
 ```bash
 npm run dev
 ```
 
----
-
-### Launch MokshithOS
-
-Open:
+Then open:
 
 ```text
 http://localhost:3000
 ```
 
----
+### 5. Production build check
 
-## 📝 Adding New Content
+```bash
+npm run build
+npm run start
+```
 
-The platform is designed to scale effortlessly.
+### 6. Lint the project
 
-No new page files are required.
+```bash
+npm run lint
+```
 
-### Step 1
+Note: in Next.js 16, linting is not automatically run during `next build`.
 
-Open:
+## Environment and live integrations
+
+This portfolio uses a few live network-dependent features:
+
+- GitHub public API for recent repository activity on the home page
+- `/api/spotify` for Spotify now-playing data
+- GeoJS for visitor location used by the `diagnostics` terminal command
+- a remote Gist for live status-bar config in `usePortfolioStats`
+- Vercel Analytics via `@vercel/analytics`
+
+If any of these are unavailable, most of the UI still loads and falls back gracefully.
+
+## Where to update content
+
+### Personal assets
+
+- Profile image: `public/your-photo.jpeg`
+- Resume PDF: `public/resume.pdf`
+- Favicon/app icon: `src/app/icon.jpg`
+
+### Portfolio data
+
+- Projects: `src/lib/data.ts`
+- Notes: `src/lib/data.ts`
+- Static "Now" ticker items: `src/lib/data.ts`
+- Skills: `src/lib/skill-data.ts`
+- Timeline: `src/lib/timeline-data.ts`
+- Achievements: `src/lib/achievements.ts`
+- Experience: `src/lib/experience.ts`
+
+### Route-level pages and UI
+
+- Homepage terminal experience: `src/app/page.tsx`
+- Terminal engine: `src/components/terminal/LiveTerminal.tsx`
+- Global status bar: `src/components/StatusBar.tsx`
+- Redis playground: `src/app/redis-playground/page.tsx`
+- Redis architecture page: `src/app/architecture/redis/page.tsx`
+- Notes renderer: `src/app/notes/[slug]/page.tsx`
+
+## Suggested content update workflow
+
+### Add a new project
+
+1. Add a new object to `projects` in `src/lib/data.ts`
+2. Set `title`, `description`, `tech`, and `link`
+3. If `link` is internal, create the matching route page if needed
+
+### Add a new note
+
+1. Add a new object to `notes` in `src/lib/data.ts`
+2. Fill in `title`, `slug`, `date`, `tags`, and `content`
+3. Open `/notes/<slug>` to verify rendering
+
+### Update skills, timeline, achievements, or experience
+
+Edit the matching file under `src/lib/`.
+
+## Tech stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- Framer Motion
+- React Markdown
+- Remark GFM
+- Three.js / React Three Fiber / Drei
+- Vercel Analytics
+
+## Project structure
 
 ```text
-src/lib/data.ts
+src/
+  app/                 App Router routes and layouts
+  components/          UI, terminal, timeline, and layout components
+  hooks/               Diagnostic hooks
+  lib/                 Portfolio content and shared data
+public/
+  resume.pdf
+  your-photo.jpeg
+  sounds/
 ```
 
----
+## Notes for maintainers
 
-### Step 2
-
-Locate:
-
-```typescript
-projects = [...]
-```
-
-or
-
-```typescript
-notes = [...]
-```
-
----
-
-### Step 3
-
-Add a new object following the existing schema.
-
-Example:
-
-```typescript
-{
-  slug: "redis-server",
-  title: "Redis-Compatible Server",
-  summary: "Built a Redis clone from scratch in C++."
-}
-```
-
----
-
-### Step 4
-
-Save the file.
-
-The system automatically:
-
-* Generates routes
-* Updates terminal navigation
-* Updates file listings
-* Enables dynamic rendering
-
-No additional configuration required.
-
----
-
-## 🎯 Design Philosophy
-
-Most portfolios are resumes with animations.
-
-MokshithOS takes a different approach.
-
-The goal is to create a developer experience that reflects:
-
-* Curiosity
-* Systems thinking
-* Engineering craftsmanship
-* Technical depth
-
-Instead of scrolling through sections, visitors interact with a virtual operating system and discover content through exploration.
-
----
-
-## 🔮 Future Roadmap
-
-Planned features:
-
-* Interactive Redis architecture visualizations
-* Command history persistence
-* Terminal themes
-* Search functionality
-* Build logs timeline
-* Competitive programming dashboard
-* Technical note tagging system
-* Live GitHub activity integration
-* Engineering journal mode
-
----
-
-## 👨‍💻 Author
-
-**Mokshith Gattu**
-
-Computer Science Student — NIT Warangal
-
-Interests:
-
-* Systems Programming
-* Distributed Systems
-* Machine Learning
-* Competitive Programming
-
-Currently Building:
-
-```text
-Redis-Compatible Server
-```
-
----
-
-*"Build. Learn. Iterate."*
+- Most of the portfolio content lives in `src/lib/*`, not in a CMS
+- The terminal experience is the main entry point of the project
+- Some routes in the codebase are experimental or legacy and are not part of the main home-screen flow
+- Keep secrets in `.env.local` only and never hardcode real credentials into documentation
